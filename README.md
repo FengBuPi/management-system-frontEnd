@@ -1,37 +1,27 @@
-# 个人财务管理系统-前后端分离版本-前端部分
+# 个人财务管理系统-前后端分离版本(React+Redux+tailwind+ Nestjs+Swagger+Mysql)
 
-#### 介绍
-个人财务管理系统-前后端分离版本-前端部分：React+tsx+Redux+react-Router6+tailwind+axios
+## Description
 
-#### 软件架构
-软件架构说明
+**技术栈：** React+tsx+Redux+tailwind+ Nestjs+Swagger+typeOrm-Mysql
 
+## 安装依赖
 
-#### 安装教程
+```bash
+$ pnpm install
+```
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+## 运行程序
 
-#### 使用说明
+```bash
+$ pnpm run dev
+```
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+# 前端-React+tsx+Redux+react-Router6+tailwind+axios
 
-#### 参与贡献
-
-1.  Fork 本仓库
-2.  新建 Feat_xxx 分支
-3.  提交代码
-4.  新建 Pull Request
-
-
-#### 特技
-
-1.  使用 Readme\_XXX.md 来支持不同的语言，例如 Readme\_en.md, Readme\_zh.md
-2.  Gitee 官方博客 [blog.gitee.com](https://blog.gitee.com)
-3.  你可以 [https://gitee.com/explore](https://gitee.com/explore) 这个地址来了解 Gitee 上的优秀开源项目
-4.  [GVP](https://gitee.com/gvp) 全称是 Gitee 最有价值开源项目，是综合评定出的优秀开源项目
-5.  Gitee 官方提供的使用手册 [https://gitee.com/help](https://gitee.com/help)
-6.  Gitee 封面人物是一档用来展示 Gitee 会员风采的栏目 [https://gitee.com/gitee-stars/](https://gitee.com/gitee-stars/)
+- [x] react-Router6配置
+- [x] redux配置
+- [x] axios二次封装（完成了双token登录封装）
+- [x] 侧边栏基础跳转封装
+- [x] UI层与逻辑层分离
+- [x] 404页面
+- [ ] 大文件切片上传接口对接(采用了webworker辅助文件切片)

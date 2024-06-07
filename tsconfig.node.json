@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    // 设置为true启用项目组合编译，允许 TypeScript 项目相互引用并共享编译输出。
+    "composite": true,
+    // 跳过对声明文件（.d.ts）的类型检查，加快编译速度。
+    "skipLibCheck": true,
+    // 指定模块系统。ESNext 表示使用最新的 ECMAScript 模块标准。
+    "module": "ESNext",
+    // 设置模块解析策略为'bundler'，这通常与Webpack等打包工具的解析规则保持一致。
+    "moduleResolution": "bundler",
+    // 允许默认导入，即使没有明确的default导出，使得从CommonJS模块导入时更加方便。
+    "allowSyntheticDefaultImports": true,
+    // 启用所有严格类型检查选项，包括null检查、类型安全等，以提高代码质量。
+    "strict": true,
+  },
+  // 指定要包含在编译操作中的文件或目录列表。这里只包含vite配置文件。
+  "include": [
+    "vite.config.ts"
+  ]
+}
