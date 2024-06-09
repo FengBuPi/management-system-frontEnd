@@ -54,7 +54,9 @@ class AxiosRequest {
           // 未授权,刷新token
           await TokenRefresher.refreshToken(error)
           console.log('当前未授权');
-          return Promise.reject(error);//返回错误，下方自动因为错误会在发送一次请求
+          // if (TokenRefresher.isRefreshQequest(error.config?.url))
+          break;
+        // return Promise.reject(error);//返回错误，下方自动因为错误会在发送一次请求
         case 403:
           // 访问被拒绝
           console.log('访问被拒绝');
@@ -90,41 +92,55 @@ class AxiosRequest {
     })
   }
   async get(url: string, config: AxiosRequestConfig = {}): Promise<{ data: any, status: number }> {
-    const { data, status } = await this.request({
-      url,
-      method: 'get',
-      ...config
-    });
-    return { data, status };
+    try {
+      const { data, status } = await this.request({
+        url,
+        method: 'get',
+        ...config
+      });
+      return { data, status };
+    } catch (error) {
+      throw error
+    }
   }
 
   async post(url: string, body?: object, config?: AxiosRequestConfig): Promise<{ data: any, status: number }> {
-    const { data, status } = await this.request({
-      url,
-      method: 'post',
-      data: body,
-      ...config
-    })
-    return { data, status };
+    try {
+      const { data, status } = await this.request({
+        url,
+        method: 'post',
+        data: body,
+        ...config
+      });
+      return { data, status };
+    } catch (error) {
+      throw error
+    }
   }
-  async put(url: string, body: object, config?: AxiosRequestConfig): Promise<any> {
-    const { data, status } = await this.request({
-      url,
-      method: 'put',
-      data: body,
-      ...config
-    })
-    return { data, status };
+  async put(url: string, body: object | FormData, config?: AxiosRequestConfig): Promise<any> {
+    try {
+      const { data, status } = await this.request({
+        url,
+        method: 'put',
+        ...config
+      });
+      return { data, status };
+    } catch (error) {
+      throw error
+    }
   }
 
-  async del(url: string, body: object, config?: AxiosRequestConfig): Promise<any> {
-    const { data, status } = await this.request({
-      url,
-      method: 'delete',
-      data: body,
-      ...config
-    })
-    return { data, status };
+  async del(url: string, config?: AxiosRequestConfig): Promise<any> {
+    try {
+      const { data, status } = await this.request({
+        url,
+        method: 'delete',
+        ...config
+      });
+      return { data, status };
+    } catch (error) {
+      throw error
+    }
   }
 }
 // 封装成单例

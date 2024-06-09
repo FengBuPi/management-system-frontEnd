@@ -1,24 +1,17 @@
 import React, { ReactNode, useEffect } from 'react'
-import Login from '@/api/login/login'
+import LoginAPI from '@/api/login/Login'
 import { Link } from 'react-router-dom'
-const home = () => {
-  // useEffect(() => {
-  //   console.log()
-  // }, [])
+const Login = () => {
   async function login(body: object): Promise<any> {
     console.log("发起登录")
-    const res = await Login.login(body)
+    const res = await LoginAPI.login(body)
     console.log("登录结果", res)
   }
   async function profile(): Promise<any> {
     for (let i = 0; i < 5; i++) {
-      const res = await Login.profile()
+      const res = await LoginAPI.profile()
       console.log(res)
     }
-
-  }
-  async function refresh(): Promise<any> {
-    // const res = await Login.refresh()
   }
   interface User {
     username: string,
@@ -38,4 +31,4 @@ const home = () => {
   )
 }
 
-export default home
+export default Login
