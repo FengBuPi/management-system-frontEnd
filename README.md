@@ -25,3 +25,18 @@ $ pnpm run dev
 - [x] UI层与逻辑层分离
 - [x] 404页面
 - [x] 大文件切片上传接口对接(采用了webworker辅助文件切片)
+
+
+# git 提交规范
+```bash
+feat: 新功能
+fix: 修复bug
+refactor: 重构
+perf: 性能优化
+docs: 文档
+test: 测试
+style: 样式修改
+ci: 持续集成
+chore: 其他
+revert: 回滚
+```
