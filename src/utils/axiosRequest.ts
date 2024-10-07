@@ -2,11 +2,16 @@ import { AxiosRequestConfig } from 'axios';
 // axios 二次封装
 import axios, { AxiosInstance } from 'axios'
 import singletonPattern from '@/utils/singletonPattern'
-// 刷新token逻辑类
-import TokenRefresher from './TokenRefresher';
+import RefresherAxiosRequest from './RefresherAxiosRequest';
+
+type BaseResponse<T> = {
+  data: T,
+  status: string
+}
 
 class AxiosRequest {
   private axiosInstance: AxiosInstance
+
   constructor() {
     this.axiosInstance = axios.create({
       baseURL: '/api',
@@ -14,35 +19,31 @@ class AxiosRequest {
     })
     this.init()
   }
+
   // 初始化
   private init() {
     this.interceptorsRequest()
     this.interceptorsResponse()
   }
+
   // 请求拦截器
   private interceptorsRequest() {
-    this.axiosInstance.interceptors.request.use((config: any) => {
-      // 在发送请求之前做些什么
-      // 把token放到请求头里面
+    this.axiosInstance.interceptors.request.use((config) => {
       const accessToken = localStorage.getItem("access_token")
-      // 存在短token的同时,并且当前请求不是在使用刷新短token的网络方法
-      // 如果是在使用刷新短token的网络方法,会导致'/auth/refresh'请求中的authorization被旧authorization覆盖
-      if (accessToken && !TokenRefresher.isRefreshQequest(config.url)) {
-        config.headers.authorization = 'Bearer ' + accessToken;
-      }
+      config.headers.authorization = 'Bearer ' + accessToken;
       return config;
-    }, function (error: any) {
-      // 对请求错误做些什么
+    }, function (error) {
       return Promise.reject(error);
     });
   }
+
   // 响应拦截器
   private interceptorsResponse() {
-    this.axiosInstance.interceptors.response.use((response: any) => {
+    this.axiosInstance.interceptors.response.use((response) => {
       // 2xx 范围内的状态码都会触发该函数。
       // 对响应数据做点什么
       return response;
-    }, async (error: any) => {
+    }, async (error) => {
       // 超出 2xx 范围的状态码都会触发该函数。
       // 对响应错误做点什么
       switch (error.response?.status) {
@@ -52,11 +53,9 @@ class AxiosRequest {
           break;
         case 401:
           // 未授权,刷新token
-          await TokenRefresher.refreshToken(error)
-          console.log('当前未授权');
-          // if (TokenRefresher.isRefreshQequest(error.config?.url))
+          // 必须await,阻塞当前请求再在刷新完后重发请求
+          if (await RefresherAxiosRequest.refresh('/auth/refresh')) return Promise.reject(error); // 刷新完成才可重发请求
           break;
-        // return Promise.reject(error);//返回错误，下方自动因为错误会在发送一次请求
         case 403:
           // 访问被拒绝
           console.log('访问被拒绝');
@@ -71,76 +70,73 @@ class AxiosRequest {
           break;
         default:
           console.log('其他错误', error.response.data.message);
-          return Promise.reject(error);
-        // break;
+          break;
       }
     });
   }
 
-  request(axiosRequestConfig: AxiosRequestConfig): Promise<any> {
-    // 如果正在发送刷新token的请求中,并且不是发送刷新token
-    // 就拦截掉所有的请求，并存储在“后续请求暂存队列”中(不存储刷新token的请求)
-    if (TokenRefresher.isRefreshing && !TokenRefresher.isRefreshQequest(axiosRequestConfig.url)) {
+  async request<T>(axiosRequestConfig: AxiosRequestConfig): Promise<BaseResponse<T>> {
+    // 当正在刷新token,将当前请求放入暂存队列中
+    if (RefresherAxiosRequest.isRefreshing) {
+      console.log('当前请求正在刷新token,暂存请求')
       return new Promise((resolve, reject) => {
-        TokenRefresher.temporaryQueue.push(this.axiosInstance(axiosRequestConfig).then(resolve).catch(reject))// 最后会在promise.allSettled处执行
+        RefresherAxiosRequest.temporaryQueue.push(this.axiosInstance(axiosRequestConfig).then(res => {
+          resolve({
+            status: res.status.toString(),
+            data: res.data,
+          });
+        }).catch(reject))// 最后会在promise.allSettled处执行
       })
     }
-    // 对aixos实例的二次封装
-    return this.axiosInstance(axiosRequestConfig).catch(() => {
-      // 出现错误了,就重新发请求
-      return this.request(axiosRequestConfig)
+    console.log('当前请求没有刷新token开始请求')
+    return new Promise((resolve) => {
+      this.axiosInstance(axiosRequestConfig).catch(() => {
+        // 出现非200状态的错误,就重新发请求
+        return this.request(axiosRequestConfig)
+      }).then(res => {
+        resolve({
+          status: res.status.toString(),
+          data: res.data,
+        });
+      })
     })
   }
-  async get(url: string, config: AxiosRequestConfig = {}): Promise<{ data: any, status: number }> {
-    try {
-      const { data, status } = await this.request({
-        url,
-        method: 'get',
-        ...config
-      });
-      return { data, status };
-    } catch (error) {
-      throw error
-    }
+
+  async get<T>(url: string, config: AxiosRequestConfig = {}): Promise<BaseResponse<T>> {
+    const { data, status } = await this.request<T>({
+      ...config,
+      url,
+      method: 'get',
+    });
+    return { data, status };
   }
 
-  async post(url: string, body?: object, config?: AxiosRequestConfig): Promise<{ data: any, status: number }> {
-    try {
-      const { data, status } = await this.request({
-        url,
-        method: 'post',
-        data: body,
-        ...config
-      });
-      return { data, status };
-    } catch (error) {
-      throw error
-    }
-  }
-  async put(url: string, body: object | FormData, config?: AxiosRequestConfig): Promise<any> {
-    try {
-      const { data, status } = await this.request({
-        url,
-        method: 'put',
-        ...config
-      });
-      return { data, status };
-    } catch (error) {
-      throw error
-    }
+  async post<T>(url: string, body?: object, config?: AxiosRequestConfig): Promise<BaseResponse<T>> {
+    const { data, status } = await this.request<T>({
+      ...config,
+      url,
+      method: 'post',
+      data: body,
+    });
+    return { data, status };
   }
 
-  async del(url: string, config?: AxiosRequestConfig): Promise<any> {
-    try {
-      const { data, status } = await this.request({
-        url,
-        method: 'delete',
-        ...config
-      });
-      return { data, status };
-    } catch (error) {
-      throw error
-    }
+  async put<T>(url: string, body: object | FormData, config?: AxiosRequestConfig): Promise<BaseResponse<T>> {
+    const { data, status } = await this.request<T>({
+      ...config,
+      url,
+      method: 'put',
+    });
+    return { data, status };
+  }
+
+  async del<T>(url: string, config?: AxiosRequestConfig): Promise<BaseResponse<T>> {
+    const { data, status } = await this.request<T>({
+      ...config,
+      url,
+      method: 'delete',
+    });
+    return { data, status };
   }
 }
 // 封装成单例
