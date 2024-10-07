@@ -9,8 +9,6 @@ import routers from "@/router/router.tsx"
 import store from '@/store'
 import { Provider } from 'react-redux'
 import Utils from "./utils/Utils"
-// 打印我帅气的log哈哈哈哈哈
-// Utils.controlLogo()
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <Provider store={store}>
     <React.StrictMode>
