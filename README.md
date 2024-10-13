@@ -1,4 +1,4 @@
-# 个人财务管理系统-前后端分离版本(React+Redux+tailwind+ Nestjs+Swagger+Mysql)
+# 后台管理系统-前后端分离版本(React+Redux+tailwind+ Nestjs+Swagger+Mysql)
 
 ## Description
 
@@ -16,7 +16,7 @@ $ pnpm install
 $ pnpm run dev
 ```
 
-# 前端-React+tsx+Redux+react-Router6+tailwind+axios
+# 前端部分-React+tsx+Redux+react-Router6+tailwind+axios
 
 - [x] react-Router6配置
 - [x] redux配置
