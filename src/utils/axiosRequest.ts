@@ -1,6 +1,4 @@
-import { AxiosRequestConfig } from 'axios';
-// axios 二次封装
-import axios, { AxiosInstance } from 'axios'
+import axios, { AxiosInstance, AxiosRequestConfig } from 'axios'
 import singletonPattern from '@/utils/singletonPattern'
 import RefresherAxiosRequest from './RefresherAxiosRequest';
 
@@ -139,6 +137,7 @@ class AxiosRequest {
     return { data, status };
   }
 }
+
 // 封装成单例
 const AxiosReq = singletonPattern(AxiosRequest)
 export default new AxiosReq
