@@ -35,7 +35,7 @@ refactor: 重构
 perf: 性能优化
 docs: 文档
 test: 测试
-style: 样式修改
+style: 代码格式修改,不涉及业务逻辑
 ci: 持续集成
 chore: 其他
 revert: 回滚
