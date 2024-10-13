@@ -15,11 +15,6 @@ class AxiosRequest {
       baseURL: '/api',
       timeout: 50000
     })
-    this.init()
-  }
-
-  // 初始化
-  private init() {
     this.interceptorsRequest()
     this.interceptorsResponse()
   }

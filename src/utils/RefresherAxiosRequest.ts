@@ -1,10 +1,4 @@
-import { AxiosRequestConfig } from 'axios';
-import axios, { AxiosInstance } from 'axios'
-
-type RefreshToken = {
-  access_token: string,
-  refresh_token: string
-}
+import axios, { AxiosRequestConfig, AxiosInstance } from 'axios';
 
 class RefresherAxiosRequest {
   private refresherAxiosInstance: AxiosInstance // 专门刷新token的axios实例
@@ -16,14 +10,10 @@ class RefresherAxiosRequest {
       baseURL: '/api',
       timeout: 50000
     })
-    this.init()
-  }
-
-  // 初始化
-  private init() {
     this.interceptorsRequest()
     this.interceptorsResponse()
   }
+
 
   // 请求拦截器
   private interceptorsRequest() {
@@ -40,15 +30,14 @@ class RefresherAxiosRequest {
     this.refresherAxiosInstance.interceptors.response.use((response) => {
       return response;
     }, async (error) => {
-      // 超出 2xx 范围的状态码都会触发该函数。
-      // 对响应错误做点什么
       switch (error.response?.status) {
         case 400:
           // 错误处理
           console.log('错误请求');
           break;
         case 401:
-          // 长token失效,跳转登录页面
+          // 长token失效,清空队列,跳转登录页面
+          this.temporaryQueue = [];
           console.log('长token失效,跳转登录页面')
           break;
         case 403:
